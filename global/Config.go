@@ -4,6 +4,7 @@ import "time"
 
 type Config struct {
 	ChatID          int64
+	RequestURL      string
 	TickerTime      time.Duration
 	Filename        string
 	Names           map[string]string
@@ -13,8 +14,10 @@ type Config struct {
 
 func InitConfig() *Config {
 	return &Config{
+		// Сверху чат айди беседы куда присылать, ниже это личка разработчика
 		//ChatID: -1002325494550,
 		ChatID:     1062210573,
+		RequestURL: "https://api.itsm.mos.ru/v1/requests/",
 		TickerTime: 20,
 		Filename:   "data/requests_log.txt",
 

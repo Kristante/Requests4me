@@ -60,8 +60,8 @@ type Note struct {
 	NodeID string `json:"nodeID"`
 }
 
-func GetNotesFromRequest(reqID int, apiToken string, bot *tele.Bot, memberName string, businessAcc bool) {
-	apiURL := "https://api.itsm.mos.ru/v1/requests/" + strconv.Itoa(reqID) + "/notes"
+func GetNotesFromRequest(reqID int, apiToken string, bot *tele.Bot, memberName string, businessAcc bool, config *global.Config) {
+	apiURL := config.RequestURL + strconv.Itoa(reqID) + "/notes"
 	client := http.Client{}
 
 	req, err := http.NewRequest("GET", apiURL, nil)

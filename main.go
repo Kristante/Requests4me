@@ -57,14 +57,14 @@ type CreatedBy struct {
 // Функция чистим от всяких символов строку
 func cleanString(input string) string {
 	// Регулярное выражение для замены всех последовательностей вида "/<буква>" на пробел
-	re := regexp.MustCompile(`/[a-zA-Z]`) // Ищет "/a", "/b", "/n" и так далее
+	re := regexp.MustCompile(`/[a-zA-Z]`)
 
 	// Заменяем все найденные последовательности на пробел
 	input = re.ReplaceAllString(input, " ")
 
 	// Регулярное выражение для удаления символов новой строки, табуляции и других управляющих символов.
 	// Оставляем только пробелы, буквы и цифры.
-	re2 := regexp.MustCompile(`[\r\n\t]+`) // Убираем только \r, \n, \t
+	re2 := regexp.MustCompile(`[\r\n\t]+`)
 
 	// Заменяем все найденные символы на пробел
 	cleaned := re2.ReplaceAllString(input, " ")
@@ -76,9 +76,11 @@ func cleanString(input string) string {
 	return cleaned
 }
 
-// Получить информацию о конкретной
+// Получить информацию о конкретной заявке
 func getInfoForRequest(reqID int, apiToken string, bot *tele.Bot) {
-	apiURL := "https://api.itsm.mos.ru/v1/requests/" + strconv.Itoa(reqID)
+
+	config := global.InitConfig()
+	apiURL := config.RequestURL + strconv.Itoa(reqID)
 	client := http.Client{}
 
 	req, err := http.NewRequest("GET", apiURL, nil)
@@ -145,12 +147,10 @@ func getInfoForRequest(reqID int, apiToken string, bot *tele.Bot) {
 
 	description = cleanString(description)
 
-	config := global.InitConfig()
-
 	NameOfCreator := requests.CreatedBy.Name
 
 	if NameOfCreator == config.BusinessAccount {
-		handlers4me.GetNotesFromRequest(requests.ID, apiToken, bot, requests.Member.Name, true)
+		handlers4me.GetNotesFromRequest(requests.ID, apiToken, bot, requests.Member.Name, true, config)
 	} else {
 		IDRequest := requests.ID
 
@@ -160,17 +160,18 @@ func getInfoForRequest(reqID int, apiToken string, bot *tele.Bot) {
 }
 
 // Функция для получения заявок
-func getAllRequests(apiToken string, bot *tele.Bot) {
+func getAllRequests(apiToken string, bot *tele.Bot, config *global.Config) {
+
 	if apiToken == "" {
 		log.Fatal("Токен не установлен. Проверьте переменную окружения.")
 	}
 
 	// Подгруждаем с конфига название файла
-	config := global.InitConfig()
+
 	filename := config.Filename
 	filenameNotes := config.FilenameNotes
 
-	apiURL := "https://api.itsm.mos.ru/v1/requests/open"
+	apiURL := config.RequestURL + "open"
 	client := http.Client{}
 
 	req, err := http.NewRequest("GET", apiURL, nil)
@@ -238,7 +239,7 @@ func getAllRequests(apiToken string, bot *tele.Bot) {
 				continue
 			}
 			if !exists {
-				handlers4me.GetNotesFromRequest(req.ID, apiToken, bot, req.Member.Name, false)
+				handlers4me.GetNotesFromRequest(req.ID, apiToken, bot, req.Member.Name, false, config)
 				err := txtfile.AddRequestToFile(req.ID, filenameNotes, UpdatedTimeString)
 				if err != nil {
 					log.Printf("Ошибка записи в файл: %v", err)
@@ -268,9 +269,10 @@ func main() {
 	}
 
 	apiToken := os.Getenv("TOKEN_4ME")
-	getAllRequests(apiToken, bot)
 
 	config := global.InitConfig()
+
+	getAllRequests(apiToken, bot, config)
 
 	ticker := time.NewTicker(config.TickerTime * time.Minute)
 	defer ticker.Stop()
@@ -282,7 +284,7 @@ func main() {
 			case <-ticker.C:
 				// Выполняем функцию каждые 30 минут
 				fmt.Println("Таймер сработал, выполняется получение заявок...")
-				getAllRequests(apiToken, bot)
+				getAllRequests(apiToken, bot, config)
 			}
 		}
 	}()
