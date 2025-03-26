@@ -1,6 +1,8 @@
 package telegram
 
 import (
+	"4meRequests/global"
+	"fmt"
 	"github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v4"
 	"log"
@@ -8,14 +10,14 @@ import (
 	"time"
 )
 
-func CreateBot() (*tele.Bot, error) {
+func CreateBot(osToken string) (*tele.Bot, error) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Ошибка загрузки .env файла: %v", err)
 		return nil, err
 	}
 
-	token := os.Getenv("BOT_TOKEN")
+	token := os.Getenv(osToken)
 	if token == "" {
 		log.Fatal("BOT_TOKEN не найден в файле .env")
 		return nil, err
@@ -38,6 +40,8 @@ func SendMessageForChat(bot *tele.Bot, chatID int64, message string) {
 	// Отправляем сообщение в указанный чат
 	_, err := bot.Send(&tele.Chat{ID: chatID}, message)
 	if err != nil {
-		log.Printf("Не удалось отправить сообщение: %v", err)
+		config := global.InitConfig()
+
+		SendAlertForChat(bot, config.ErrorChatID, config.RobotMainErrorMessage+fmt.Sprintf("%v", err))
 	}
 }
