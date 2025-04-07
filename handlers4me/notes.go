@@ -121,21 +121,20 @@ func GetNotesFromRequest(reqID int, apiToken string, bot *tele.Bot, memberName s
 
 	} else {
 
-		// Сортировка по дате создания
+		// Необходимо отсортировать по дате создания по убыванию
 		sort.Slice(notes, func(i, j int) bool {
 			t1, _ := time.Parse(time.RFC3339, notes[i].CreatedAt)
 			t2, _ := time.Parse(time.RFC3339, notes[j].CreatedAt)
-			return t1.After(t2) // Сортировка по убыванию
+			return t1.After(t2)
 		})
 
-		config := global.InitConfig()
 		excludedNames := config.Names
 		// Список имен для исключения
 		// Самая последняя заметка
 		if len(notes) > 0 {
 			latestNote := notes[0]
 
-			// Проверка на отсутствие имени в списке исключений
+			// Есть ли имя в списке исключений?
 			nameAllowed := true
 
 			// Проверяем, существует ли имя в ключах мапы

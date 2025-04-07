@@ -16,9 +16,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"regexp"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -75,52 +73,11 @@ func main() {
 	}
 
 	apiToken := os.Getenv("TOKEN_4ME")
-	ticker := time.NewTicker(config.TickerTime * time.Minute)
-	defer ticker.Stop()
 
 	err = getAllRequests(apiToken, bot, config)
 	if err != nil {
 		telegram.SendAlertForChat(bot, config.ErrorChatID, config.RobotMainErrorMessage+fmt.Sprintf("\nПроизошла ошибка %v", err))
 	}
-
-	fmt.Println("Запуск планировщика...")
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				// Выполняем функцию каждые 30 минут
-				fmt.Println("Таймер сработал, выполняется получение заявок...")
-				err = getAllRequests(apiToken, bot, config)
-				if err != nil {
-					telegram.SendAlertForChat(bot, config.ErrorChatID, config.RobotMainErrorMessage+fmt.Sprintf("\nПроизошла ошибка %v", err))
-				}
-			}
-		}
-	}()
-
-	select {}
-}
-
-// Функция чистим от всяких символов строку
-func cleanString(input string) string {
-	// Регулярное выражение для замены всех последовательностей вида "/<буква>" на пробел
-	re := regexp.MustCompile(`/[a-zA-Z]`)
-
-	// Заменяем все найденные последовательности на пробел
-	input = re.ReplaceAllString(input, " ")
-
-	// Регулярное выражение для удаления символов новой строки, табуляции и других управляющих символов.
-	// Оставляем только пробелы, буквы и цифры.
-	re2 := regexp.MustCompile(`[\r\n\t]+`)
-
-	// Заменяем все найденные символы на пробел
-	cleaned := re2.ReplaceAllString(input, " ")
-
-	// Убираем лишние пробелы, если они есть (например, несколько пробелов подряд)
-	cleaned = strings.Join(strings.Fields(cleaned), " ")
-
-	// Возвращаем очищенную строку
-	return cleaned
 }
 
 // Получить информацию о конкретной заявке

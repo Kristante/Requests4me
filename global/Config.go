@@ -7,7 +7,6 @@ type Config struct {
 	ChatID                int64
 	ErrorChatID           int64
 	RequestURL            string
-	TickerTime            time.Duration
 	Filename              string
 	Names                 map[string]string
 	Messages              map[string]string
@@ -17,13 +16,12 @@ type Config struct {
 
 func InitConfig() *Config {
 	return &Config{
-		// Сверху чат айди беседы куда присылать, ниже это личка разработчика
 		RobotMainErrorMessage: "❌❌❌ FAULTED!\n\n" + time.Now().Format("2006-01-02 15:04:05") + "\n\nПроизошла ошибка в работе робота\n\nProcessName: 4meRequestsBot\n\nExceptionMessage:\n",
-		ChatID:                -1002325494550,
-		//ChatID:      10622105723,
+		// Сверху чат айди беседы куда присылать, ниже это личка разработчика
+		//ChatID:                -1002325494550,
+		ChatID:      1062210573,
 		ErrorChatID: -4669217347,
 		RequestURL:  "https://api.itsm.mos.ru/v1/requests/",
-		TickerTime:  20,
 		Filename:    "data/requests_log.txt",
 
 		FilenameNotes: "data/requests_notes.txt",

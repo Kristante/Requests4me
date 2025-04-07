@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-// Проверяем, содержит ли файл заявку
+// Проверка наличия заявки в файле
 func ContainsRequest(reqID int, filename string, UpdateTime string) (bool, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -35,7 +35,7 @@ func ContainsRequest(reqID int, filename string, UpdateTime string) (bool, error
 	return false, scanner.Err()
 }
 
-// Добавляем новую заявку в файл
+// Добавление новой заявки в файл
 func AddRequestToFile(reqID int, filename string, UpdatedTime string) error {
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {

@@ -36,12 +36,22 @@ func CreateBot(osToken string) (*tele.Bot, error) {
 	return bot, nil
 }
 
+// Объединить лучше а то херня какая то
+
 func SendMessageForChat(bot *tele.Bot, chatID int64, message string) {
-	// Отправляем сообщение в указанный чат
+	// Отправляем сообщение в чатик заявок
 	_, err := bot.Send(&tele.Chat{ID: chatID}, message)
 	if err != nil {
 		config := global.InitConfig()
 
 		SendAlertForChat(bot, config.ErrorChatID, config.RobotMainErrorMessage+fmt.Sprintf("%v", err))
+	}
+}
+
+func SendAlertForChat(bot *tele.Bot, chatID int64, message string) {
+	// Отправляем сообщение в чат с ошибками
+	_, err := bot.Send(&tele.Chat{ID: chatID}, message)
+	if err != nil {
+		log.Printf("Не удалось отправить сообщение: %v", err)
 	}
 }
